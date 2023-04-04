@@ -1,0 +1,53 @@
+﻿<Window x:Class="SmallImageViewer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SmallImageViewer"
+        mc:Ignorable="d" 
+		SizeToContent="WidthAndHeight"
+		Topmost="True" Title="Ryan's Image App" MaxWidth="1000">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="auto"/>
+		</Grid.RowDefinitions>
+		<ScrollViewer Grid.Row="0" Grid.Column="0">
+			<ListView x:Name="ImageGrid" ItemsSource="{Binding ImageItems}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+				<ListView.ItemTemplate>
+					<DataTemplate DataType="local:ImageItem">
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="*"/>
+								<RowDefinition Height="auto"/>
+							</Grid.RowDefinitions>
+							<Border BorderBrush="Black" BorderThickness="1">
+								<Image x:Name="ImageTile"
+									Width="{Binding DataContext.ImageSize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListView}}" 
+									Height="{Binding DataContext.ImageSize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListView}}" 
+									RenderOptions.BitmapScalingMode="NearestNeighbor" Source="{Binding Image}"/>
+							</Border>
+							<TextBlock Text="{Binding Name}" Grid.Row="1" HorizontalAlignment="Center"
+									   MaxWidth="{Binding Width, ElementName=ImageTile}"/>
+						</Grid>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+				<ListView.ItemsPanel>
+					<ItemsPanelTemplate>
+						<WrapPanel/>
+					</ItemsPanelTemplate>
+				</ListView.ItemsPanel>
+			</ListView>
+		</ScrollViewer>
+		<WrapPanel Orientation="Horizontal" Grid.Row="1">
+			<TextBox Width="300" Margin="5" Padding="5" Text="{Binding FolderPath}" IsReadOnly="true"/>
+			<Button Content="Open Folder" Command="{Binding OpenFolderCommand}" Margin="5" Padding="5"/>
+			<Button Content="Clear Folder" Command="{Binding ClearFolderCommand}" Margin="5" Padding="5"/>
+			<StackPanel Orientation="Horizontal" Margin="5">
+				<TextBlock Text="Size: " VerticalAlignment="Center"/>
+				<TextBlock Text="{Binding ImageSize, StringFormat=###}" VerticalAlignment="Center"/>
+				<Slider Minimum="10" Maximum="500" Value="{Binding ImageSize}" Width="200" VerticalAlignment="Center"/>
+			</StackPanel>
+		</WrapPanel>
+	</Grid>
+</Window>
