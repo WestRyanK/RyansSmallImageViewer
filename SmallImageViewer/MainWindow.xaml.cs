@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
@@ -135,6 +136,12 @@ namespace SmallImageViewer {
 				if (FolderPath != null) {
 					System.Diagnostics.Process.Start("explorer.exe", FolderPath);
 				}
+			}
+		};
+
+		public ICommand NewWindowCommand => new Command {
+			ExecuteAction = _ => {
+					System.Diagnostics.Process.Start(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
 			}
 		};
 
