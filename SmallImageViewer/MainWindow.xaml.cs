@@ -119,12 +119,21 @@ namespace SmallImageViewer {
 				.ForEach(p => ImageItems.Add(new ImageItem(p)));
 		}
 
-		public ICommand OpenFolderCommand => new Command {
+		public ICommand SelectFolderCommand => new Command {
 			ExecuteAction = _ => {
 
 				System.Windows.Forms.FolderBrowserDialog dialog = new System.Windows.Forms.FolderBrowserDialog();
 				if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
 					FolderPath = dialog.SelectedPath;
+				}
+			}
+		};
+
+		public ICommand ViewFolderCommand => new Command {
+			CanExecuteAction = _ => !string.IsNullOrEmpty(FolderPath),
+			ExecuteAction = _ => {
+				if (FolderPath != null) {
+					System.Diagnostics.Process.Start("explorer.exe", FolderPath);
 				}
 			}
 		};
