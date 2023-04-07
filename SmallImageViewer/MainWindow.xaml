@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SmallImageViewer"
         mc:Ignorable="d" 
-		SizeToContent="WidthAndHeight"
+		SizeToContent="Manual"
+		Width="{Binding AppViewModel.WindowWidth, Mode=TwoWay}"
+		Height="{Binding AppViewModel.WindowHeight, Mode=TwoWay}"
 		Topmost="True" Title="Ryan's Image App" MaxWidth="1000">
 	<Grid>
 		<Grid.RowDefinitions>
@@ -23,8 +25,8 @@
 							</Grid.RowDefinitions>
 							<Border BorderBrush="Black" BorderThickness="1">
 								<Image x:Name="ImageTile"
-									Width="{Binding DataContext.ImageSize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListView}}" 
-									Height="{Binding DataContext.ImageSize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListView}}" 
+									Width="{Binding DataContext.AppViewModel.ImageSize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListView}}" 
+									Height="{Binding DataContext.AppViewModel.ImageSize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListView}}" 
 									RenderOptions.BitmapScalingMode="NearestNeighbor" Source="{Binding Image}"/>
 							</Border>
 							<TextBlock Text="{Binding Name}" Grid.Row="1" HorizontalAlignment="Center"
@@ -46,8 +48,8 @@
 			<Button Content="Clear Folder" Command="{Binding ClearFolderCommand}" Margin="5" Padding="5"/>
 			<StackPanel Orientation="Horizontal" Margin="5">
 				<TextBlock Text="Size: " VerticalAlignment="Center"/>
-				<TextBlock Text="{Binding ImageSize, StringFormat=###}" VerticalAlignment="Center"/>
-				<Slider Minimum="10" Maximum="500" Value="{Binding ImageSize}" Width="200" VerticalAlignment="Center"/>
+				<TextBlock Text="{Binding AppViewModel.ImageSize, StringFormat=###}" VerticalAlignment="Center"/>
+				<Slider Minimum="10" Maximum="500" Value="{Binding AppViewModel.ImageSize}" Width="200" VerticalAlignment="Center"/>
 			</StackPanel>
 			<Button Content="+1" Command="{Binding NewWindowCommand}" Margin="5" Padding="5"/>
 		</WrapPanel>

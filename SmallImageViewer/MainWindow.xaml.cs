@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -22,15 +23,21 @@ namespace SmallImageViewer {
 			set => DataContext = value;
 		}
 
+		private AppViewModel? AppViewModel => (Application.Current as App)?.AppViewModel;
+
 		public MainWindow() {
 			InitializeComponent();
-			ViewModel = new WindowViewModel(Properties.Settings.Default.FolderPath, Properties.Settings.Default.ImageSize);
+			if (AppViewModel is AppViewModel app) {
+				ViewModel = new WindowViewModel(Properties.Settings.Default.FolderPath, app);
+			}
+			else {
+				Debug.WriteLine("Null AppViewModel");
+			}
 		}
 
 		protected override void OnClosed(EventArgs e) {
 			base.OnClosed(e);
 			Properties.Settings.Default.FolderPath = ViewModel?.FolderPath;
-			Properties.Settings.Default.ImageSize = ViewModel?.ImageSize ?? WindowViewModel.DefaultImageSize;
 			Properties.Settings.Default.Save();
 		}
 	}
@@ -62,6 +69,11 @@ namespace SmallImageViewer {
 	public class WindowViewModel : ViewModelBase {
 		public ObservableCollection<ImageItem> ImageItems { get; set; } = new ObservableCollection<ImageItem>();
 
+		public AppViewModel? AppViewModel {
+			get;
+			private set;
+		}
+
 		private string? _folderPath;
 		public string? FolderPath {
 			get => _folderPath;
@@ -71,13 +83,6 @@ namespace SmallImageViewer {
 					WatchFolder();
 				}
 			}
-		}
-
-		public const float DefaultImageSize = 200;
-		private float _imageSize = DefaultImageSize;
-		public float ImageSize {
-			get => _imageSize;
-			set => SetProperty(ref _imageSize, value);
 		}
 
 		private FileSystemWatcher? _watcher;
@@ -95,9 +100,9 @@ namespace SmallImageViewer {
 			}
 		}
 
-		public WindowViewModel(string folderPath, float imageSize) {
+		public WindowViewModel(string folderPath, AppViewModel? appViewModel) {
 			FolderPath = folderPath;
-			ImageSize = imageSize;
+			AppViewModel = appViewModel;
 
 			_reloadWaiter = new RapidWaiter() {
 				Delay = TimeSpan.FromSeconds(1),
@@ -122,7 +127,6 @@ namespace SmallImageViewer {
 
 		public ICommand SelectFolderCommand => new Command {
 			ExecuteAction = _ => {
-
 				System.Windows.Forms.FolderBrowserDialog dialog = new System.Windows.Forms.FolderBrowserDialog();
 				if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
 					FolderPath = dialog.SelectedPath;
@@ -141,7 +145,8 @@ namespace SmallImageViewer {
 
 		public ICommand NewWindowCommand => new Command {
 			ExecuteAction = _ => {
-					System.Diagnostics.Process.Start(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
+				MainWindow mainWindow = new MainWindow();
+				mainWindow.Show();
 			}
 		};
 
