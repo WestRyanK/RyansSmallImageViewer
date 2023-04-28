@@ -15,7 +15,6 @@
 			<RowDefinition Height="*"/>
 			<RowDefinition Height="auto"/>
 		</Grid.RowDefinitions>
-		<ScrollViewer Grid.Row="0" Grid.Column="0">
 			<ListView x:Name="ImageGrid" ItemsSource="{Binding ImageItems}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
 				<ListView.ItemTemplate>
 					<DataTemplate DataType="local:ImageItem">
@@ -41,7 +40,6 @@
 					</ItemsPanelTemplate>
 				</ListView.ItemsPanel>
 			</ListView>
-		</ScrollViewer>
 		<WrapPanel Orientation="Horizontal" Grid.Row="1">
 			<TextBox Width="300" Margin="5" Padding="5" Text="{Binding FolderPath}" IsReadOnly="true"/>
 			<Button Content="Select Folder" Command="{Binding SelectFolderCommand}" Margin="5" Padding="5"/>
