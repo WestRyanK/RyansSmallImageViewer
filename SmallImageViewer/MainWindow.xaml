@@ -8,6 +8,7 @@
 		SizeToContent="Manual"
 		Width="{Binding AppViewModel.WindowWidth, Mode=TwoWay}"
 		Height="{Binding AppViewModel.WindowHeight, Mode=TwoWay}"
+		d:DataContext="{d:DesignInstance Type=local:WindowViewModel, IsDesignTimeCreatable=True}"
 		Topmost="True" Title="Ryan's Image App" MaxWidth="1000">
 	<Grid>
 		<Grid.RowDefinitions>

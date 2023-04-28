@@ -78,7 +78,7 @@ namespace SmallImageViewer {
 		public string? FolderPath {
 			get => _folderPath;
 			set {
-				if (SetProperty(ref _folderPath, value)) {
+				if (SetProperty(ref _folderPath, value) && !_isDesignMode) {
 					LoadImageItems();
 					WatchFolder();
 				}
@@ -87,6 +87,7 @@ namespace SmallImageViewer {
 
 		private FileSystemWatcher? _watcher;
 		private RapidWaiter _reloadWaiter;
+		private bool _isDesignMode = false;
 
 		private void WatchFolder() {
 			_watcher?.Dispose();
@@ -97,6 +98,14 @@ namespace SmallImageViewer {
 				_watcher.Changed += Watcher_Fired;
 				_watcher.Created += Watcher_Fired;
 				_watcher.Deleted += Watcher_Fired;
+			}
+		}
+
+		public WindowViewModel() {
+			_isDesignMode = System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject());
+			if (_isDesignMode) {
+				FolderPath = @"C:\Test\Path";
+				_reloadWaiter = new RapidWaiter();
 			}
 		}
 
