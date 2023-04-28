@@ -48,7 +48,7 @@
 			<StackPanel Orientation="Horizontal" Margin="5">
 				<TextBlock Text="Size: " VerticalAlignment="Center"/>
 				<TextBlock Text="{Binding AppViewModel.ImageSize, StringFormat=###}" VerticalAlignment="Center"/>
-				<Slider Minimum="10" Maximum="500" Value="{Binding AppViewModel.ImageSize}" Width="200" VerticalAlignment="Center"/>
+				<Slider Minimum="100" Maximum="1000" Value="{Binding AppViewModel.ImageSize}" Width="200" VerticalAlignment="Center"/>
 			</StackPanel>
 			<Button Content="+1" Command="{Binding NewWindowCommand}" Margin="5" Padding="5"/>
 		</WrapPanel>
