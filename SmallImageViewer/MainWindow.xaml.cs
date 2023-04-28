@@ -27,11 +27,21 @@ namespace SmallImageViewer {
 
 		public MainWindow() {
 			InitializeComponent();
+
 			if (AppViewModel is AppViewModel app) {
+				app.PropertyChanged += App_PropertyChanged;
 				ViewModel = new WindowViewModel(Properties.Settings.Default.FolderPath, app);
 			}
 			else {
 				Debug.WriteLine("Null AppViewModel");
+			}
+		}
+
+		private void App_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
+			if (e.PropertyName == nameof(AppViewModel.ImageSize)) {
+				if (ImageGrid.SelectedItem != null) {
+					ImageGrid.ScrollIntoView(ImageGrid.SelectedItem);
+				}
 			}
 		}
 
