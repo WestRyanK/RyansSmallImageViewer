@@ -15,7 +15,9 @@
 			<RowDefinition Height="*"/>
 			<RowDefinition Height="auto"/>
 		</Grid.RowDefinitions>
-			<ListView x:Name="ImageGrid" ItemsSource="{Binding ImageItems}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+			<ListView x:Name="ImageGrid" ItemsSource="{Binding ImageItems}" 
+					  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+					  MouseMove="ListView_MouseMove">
 				<ListView.ItemTemplate>
 					<DataTemplate DataType="local:ImageItem">
 						<Grid>

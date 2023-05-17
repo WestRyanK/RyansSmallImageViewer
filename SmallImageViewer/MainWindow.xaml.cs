@@ -9,7 +9,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -49,6 +51,39 @@ namespace SmallImageViewer {
 			base.OnClosed(e);
 			Properties.Settings.Default.FolderPath = ViewModel?.FolderPath;
 			Properties.Settings.Default.Save();
+		}
+
+		private void ListView_MouseMove(object sender, MouseEventArgs e) {
+			if (e.LeftButton != MouseButtonState.Pressed) {
+				return;
+			}
+			if (!(sender is Selector selectorControl)) {
+				return;
+			}
+
+			var item = selectorControl.SelectedItem;
+			// Ensure we're dragging the selected item and not something like the scrollbar.
+			selectorControl.UpdateLayout();
+			var itemContainer = selectorControl.ItemContainerGenerator.ContainerFromItem(item) as Visual;
+			if (item == null || itemContainer == null || !IsVisualAncestor(e.OriginalSource as Visual, itemContainer)) {
+				return;
+			}
+			if (!(item is ImageItem imageItem)) {
+				return;
+			}
+
+			DataObject dataObject = new DataObject(DataFormats.FileDrop, new string[] { imageItem.Filename });
+			DragDrop.DoDragDrop(selectorControl, dataObject, DragDropEffects.Copy);
+		}
+
+		private static bool IsVisualAncestor(Visual element, Visual ancestor) {
+			while (element != null) {
+				if (element == ancestor) {
+					return true;
+				}
+				element = VisualTreeHelper.GetParent(element) as Visual;
+			}
+			return false;
 		}
 	}
 
