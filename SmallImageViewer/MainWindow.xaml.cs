@@ -76,7 +76,7 @@ namespace SmallImageViewer {
 			DragDrop.DoDragDrop(selectorControl, dataObject, DragDropEffects.Copy);
 		}
 
-		private static bool IsVisualAncestor(Visual element, Visual ancestor) {
+		private static bool IsVisualAncestor(Visual? element, Visual ancestor) {
 			while (element != null) {
 				if (element == ancestor) {
 					return true;

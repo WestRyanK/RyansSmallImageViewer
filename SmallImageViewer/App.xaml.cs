@@ -16,12 +16,14 @@ namespace SmallImageViewer {
 			AppViewModel.ImageSize = settings.ImageSize;
 			AppViewModel.WindowWidth = settings.WindowWidth;
 			AppViewModel.WindowHeight = settings.WindowHeight;
+			AppViewModel.IsWindowOnTop = settings.IsWindowOnTop;
 		}
 
 		protected override void OnExit(ExitEventArgs e) {
 			SmallImageViewer.Properties.Settings.Default.ImageSize = AppViewModel?.ImageSize ?? AppViewModel.DefaultImageSize;
 			SmallImageViewer.Properties.Settings.Default.WindowWidth = AppViewModel?.WindowWidth ?? AppViewModel.DefaultWindowWidth;
 			SmallImageViewer.Properties.Settings.Default.WindowHeight = AppViewModel?.WindowHeight ?? AppViewModel.DefaultWindowHeight;
+			SmallImageViewer.Properties.Settings.Default.IsWindowOnTop = AppViewModel?.IsWindowOnTop ?? false;
 			SmallImageViewer.Properties.Settings.Default.Save();
 			base.OnExit(e);
 		}
@@ -47,6 +49,12 @@ namespace SmallImageViewer {
 		public double WindowHeight {
 			get => _windowHeight;
 			set => SetProperty(ref _windowHeight, value);
+		}
+
+		private bool _isWindowOnTop = false;
+		public bool IsWindowOnTop {
+			get => _isWindowOnTop;
+			set => SetProperty(ref _isWindowOnTop, value);
 		}
 	}
 }
