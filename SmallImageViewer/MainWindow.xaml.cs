@@ -137,7 +137,7 @@ namespace SmallImageViewer {
 		private void WatchFolder() {
 			_watcher?.Dispose();
 			_watcher = null;
-			if (FolderPath != null) {
+			if (!string.IsNullOrEmpty(FolderPath)) {
 				_watcher = new FileSystemWatcher(FolderPath);
 				_watcher.EnableRaisingEvents = true;
 				_watcher.Changed += Watcher_Fired;
@@ -205,14 +205,14 @@ namespace SmallImageViewer {
 		};
 
 		private IEnumerable<string> GetAllPngFiles(string? folderPath) {
-			if (folderPath == null) {
+			if (string.IsNullOrEmpty(folderPath)) {
 				return Enumerable.Empty<string>();
 			}
 
 			var filePaths = Directory.GetFiles(folderPath);
 			return filePaths
-				.Where(p => System.IO.Path.GetExtension(p) == ".png")
-				.OrderBy(p => System.IO.Path.GetFileName(p));
+				.Where(p => Path.GetExtension(p) == ".png")
+				.OrderBy(p => Path.GetFileName(p));
 		}
 
 		public ICommand ClearFolderCommand => new Command {
