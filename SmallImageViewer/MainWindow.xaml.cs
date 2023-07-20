@@ -15,49 +15,62 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace SmallImageViewer {
+namespace SmallImageViewer
+{
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
-	public partial class MainWindow : Window {
-		public WindowViewModel? ViewModel {
+	public partial class MainWindow : Window
+	{
+		public WindowViewModel? ViewModel
+		{
 			get => DataContext as WindowViewModel;
 			set => DataContext = value;
 		}
 
 		private AppViewModel? AppViewModel => (Application.Current as App)?.AppViewModel;
 
-		public MainWindow() {
+		public MainWindow()
+		{
 			InitializeComponent();
 
-			if (AppViewModel is AppViewModel app) {
+			if (AppViewModel is AppViewModel app)
+			{
 				app.PropertyChanged += App_PropertyChanged;
 				ViewModel = new WindowViewModel(Properties.Settings.Default.FolderPath, app);
 			}
-			else {
+			else
+			{
 				Debug.WriteLine("Null AppViewModel");
 			}
 		}
 
-		private void App_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
-			if (e.PropertyName == nameof(AppViewModel.ImageSize)) {
-				if (ImageGrid.SelectedItem != null) {
+		private void App_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == nameof(AppViewModel.ImageSize))
+			{
+				if (ImageGrid.SelectedItem != null)
+				{
 					ImageGrid.ScrollIntoView(ImageGrid.SelectedItem);
 				}
 			}
 		}
 
-		protected override void OnClosed(EventArgs e) {
+		protected override void OnClosed(EventArgs e)
+		{
 			base.OnClosed(e);
 			Properties.Settings.Default.FolderPath = ViewModel?.FolderPath;
 			Properties.Settings.Default.Save();
 		}
 
-		private void ListView_MouseMove(object sender, MouseEventArgs e) {
-			if (e.LeftButton != MouseButtonState.Pressed) {
+		private void ListView_MouseMove(object sender, MouseEventArgs e)
+		{
+			if (e.LeftButton != MouseButtonState.Pressed)
+			{
 				return;
 			}
-			if (!(sender is Selector selectorControl)) {
+			if (!(sender is Selector selectorControl))
+			{
 				return;
 			}
 
@@ -65,10 +78,12 @@ namespace SmallImageViewer {
 			// Ensure we're dragging the selected item and not something like the scrollbar.
 			selectorControl.UpdateLayout();
 			var itemContainer = selectorControl.ItemContainerGenerator.ContainerFromItem(item) as Visual;
-			if (item == null || itemContainer == null || !IsVisualAncestor(e.OriginalSource as Visual, itemContainer)) {
+			if (item == null || itemContainer == null || !IsVisualAncestor(e.OriginalSource as Visual, itemContainer))
+			{
 				return;
 			}
-			if (!(item is ImageItem imageItem)) {
+			if (!(item is ImageItem imageItem))
+			{
 				return;
 			}
 
@@ -76,9 +91,12 @@ namespace SmallImageViewer {
 			DragDrop.DoDragDrop(selectorControl, dataObject, DragDropEffects.Copy);
 		}
 
-		private static bool IsVisualAncestor(Visual? element, Visual ancestor) {
-			while (element != null) {
-				if (element == ancestor) {
+		private static bool IsVisualAncestor(Visual? element, Visual ancestor)
+		{
+			while (element != null)
+			{
+				if (element == ancestor)
+				{
 					return true;
 				}
 				element = VisualTreeHelper.GetParent(element) as Visual;
@@ -87,19 +105,22 @@ namespace SmallImageViewer {
 		}
 	}
 
-	public class ImageItem {
+	public class ImageItem
+	{
 		public string Filename { get; set; }
 		public string Name { get; set; }
 		public BitmapImage Image { get; set; }
 
-		public ImageItem(string filename) {
+		public ImageItem(string filename)
+		{
 			Filename = filename;
 			Name = System.IO.Path.GetFileName(filename);
 
 			Image = LoadImage(filename);
 		}
 
-		private static BitmapImage LoadImage(string filename) {
+		private static BitmapImage LoadImage(string filename)
+		{
 			using var stream = new FileStream(filename, FileMode.Open);
 			var image = new BitmapImage();
 			image.BeginInit();
@@ -111,19 +132,24 @@ namespace SmallImageViewer {
 		}
 	}
 
-	public class WindowViewModel : ViewModelBase {
+	public class WindowViewModel : ViewModelBase
+	{
 		public ObservableCollection<ImageItem> ImageItems { get; set; } = new ObservableCollection<ImageItem>();
 
-		public AppViewModel? AppViewModel {
+		public AppViewModel? AppViewModel
+		{
 			get;
 			private set;
 		}
 
 		private string? _folderPath;
-		public string? FolderPath {
+		public string? FolderPath
+		{
 			get => _folderPath;
-			set {
-				if (SetProperty(ref _folderPath, value) && !_isDesignMode) {
+			set
+			{
+				if (SetProperty(ref _folderPath, value) && !_isDesignMode)
+				{
 					LoadImageItems();
 					WatchFolder();
 				}
@@ -134,10 +160,12 @@ namespace SmallImageViewer {
 		private RapidWaiter _reloadWaiter;
 		private bool _isDesignMode = false;
 
-		private void WatchFolder() {
+		private void WatchFolder()
+		{
 			_watcher?.Dispose();
 			_watcher = null;
-			if (!string.IsNullOrEmpty(FolderPath)) {
+			if (!string.IsNullOrEmpty(FolderPath))
+			{
 				_watcher = new FileSystemWatcher(FolderPath);
 				_watcher.EnableRaisingEvents = true;
 				_watcher.Changed += Watcher_Fired;
@@ -146,21 +174,26 @@ namespace SmallImageViewer {
 			}
 		}
 
-		public WindowViewModel() {
+		public WindowViewModel()
+		{
 			_isDesignMode = System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject());
-			if (_isDesignMode) {
+			if (_isDesignMode)
+			{
 				FolderPath = @"C:\Test\Path";
 				_reloadWaiter = new RapidWaiter();
 			}
 		}
 
-		public WindowViewModel(string folderPath, AppViewModel? appViewModel) {
+		public WindowViewModel(string folderPath, AppViewModel? appViewModel)
+		{
 			FolderPath = folderPath;
 			AppViewModel = appViewModel;
 
-			_reloadWaiter = new RapidWaiter() {
+			_reloadWaiter = new RapidWaiter()
+			{
 				Delay = TimeSpan.FromSeconds(1),
-				RapidAction = () => {
+				RapidAction = () =>
+				{
 					LoadImageItems();
 				}
 			};
@@ -169,43 +202,55 @@ namespace SmallImageViewer {
 			WatchFolder();
 		}
 
-		private void Watcher_Fired(object sender, FileSystemEventArgs e) {
+		private void Watcher_Fired(object sender, FileSystemEventArgs e)
+		{
 			_reloadWaiter.Fire();
 		}
 
-		private void LoadImageItems() {
+		private void LoadImageItems()
+		{
 			ImageItems.Clear();
 			GetAllPngFiles(FolderPath)
 				.ForEach(p => ImageItems.Add(new ImageItem(p)));
 		}
 
-		public ICommand SelectFolderCommand => new Command {
-			ExecuteAction = _ => {
+		public ICommand SelectFolderCommand => new Command
+		{
+			ExecuteAction = _ =>
+			{
 				System.Windows.Forms.FolderBrowserDialog dialog = new System.Windows.Forms.FolderBrowserDialog();
-				if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+				if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+				{
 					FolderPath = dialog.SelectedPath;
 				}
 			}
 		};
 
-		public ICommand ViewFolderCommand => new Command {
+		public ICommand ViewFolderCommand => new Command
+		{
 			CanExecuteAction = _ => !string.IsNullOrEmpty(FolderPath),
-			ExecuteAction = _ => {
-				if (FolderPath != null) {
+			ExecuteAction = _ =>
+			{
+				if (FolderPath != null)
+				{
 					System.Diagnostics.Process.Start("explorer.exe", FolderPath);
 				}
 			}
 		};
 
-		public ICommand NewWindowCommand => new Command {
-			ExecuteAction = _ => {
+		public ICommand NewWindowCommand => new Command
+		{
+			ExecuteAction = _ =>
+			{
 				MainWindow mainWindow = new MainWindow();
 				mainWindow.Show();
 			}
 		};
 
-		private IEnumerable<string> GetAllPngFiles(string? folderPath) {
-			if (string.IsNullOrEmpty(folderPath)) {
+		private IEnumerable<string> GetAllPngFiles(string? folderPath)
+		{
+			if (string.IsNullOrEmpty(folderPath))
+			{
 				return Enumerable.Empty<string>();
 			}
 
@@ -215,19 +260,24 @@ namespace SmallImageViewer {
 				.OrderBy(p => Path.GetFileName(p));
 		}
 
-		public ICommand ClearFolderCommand => new Command {
-			ExecuteAction = _ => {
+		public ICommand ClearFolderCommand => new Command
+		{
+			ExecuteAction = _ =>
+			{
 				GetAllPngFiles(FolderPath)
 					.ForEach(p => File.Delete(p));
 			}
 		};
 	}
 
-	public class ViewModelBase : INotifyPropertyChanged {
+	public class ViewModelBase : INotifyPropertyChanged
+	{
 		public event PropertyChangedEventHandler? PropertyChanged;
 
-		protected bool SetProperty<T>(ref T property, T value, [CallerMemberName] string propertyName = "") {
-			if (!Equals(property, value)) {
+		protected bool SetProperty<T>(ref T property, T value, [CallerMemberName] string propertyName = "")
+		{
+			if (!Equals(property, value))
+			{
 				property = value;
 				OnPropertyChanged(propertyName);
 				return true;
@@ -235,52 +285,63 @@ namespace SmallImageViewer {
 			return false;
 		}
 
-		protected void OnPropertyChanged(string propertyName) {
+		protected void OnPropertyChanged(string propertyName)
+		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 	}
 
-	public class Command : ICommand {
+	public class Command : ICommand
+	{
 		public Action<object?> ExecuteAction { get; set; }
 		public Func<object?, bool> CanExecuteAction { get; set; }
 
 		public event EventHandler? CanExecuteChanged;
 
-		public bool CanExecute(object? parameter) {
+		public bool CanExecute(object? parameter)
+		{
 			return CanExecuteAction?.Invoke(parameter) ?? true;
 		}
 
-		public void Execute(object? parameter) {
+		public void Execute(object? parameter)
+		{
 			ExecuteAction?.Invoke(parameter);
 		}
 	}
 
-	public static class Extensions {
-		public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action) {
-			foreach (var item in enumerable) {
+	public static class Extensions
+	{
+		public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action)
+		{
+			foreach (var item in enumerable)
+			{
 				action(item);
 			}
 		}
 	}
 
-	public class RapidWaiter {
+	public class RapidWaiter
+	{
 		public Action RapidAction { get; set; }
 		public TimeSpan Delay { get; set; }
 
 		private DispatcherTimer _timer;
 
-		public RapidWaiter() {
+		public RapidWaiter()
+		{
 			_timer = new DispatcherTimer();
 			_timer.Tick += _timer_Tick;
 			_timer.IsEnabled = false;
 		}
 
-		private void _timer_Tick(object? sender, EventArgs e) {
+		private void _timer_Tick(object? sender, EventArgs e)
+		{
 			_timer.IsEnabled = false;
 			RapidAction?.Invoke();
 		}
 
-		public void Fire() {
+		public void Fire()
+		{
 			_timer.Stop();
 			_timer.Interval = Delay;
 			_timer.Start();
