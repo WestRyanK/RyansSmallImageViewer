@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -109,7 +110,7 @@ namespace SmallImageViewer
 	{
 		public string Filename { get; set; }
 		public string Name { get; set; }
-		public BitmapImage Image { get; set; }
+		public BitmapSource Image { get; set; }
 
 		public ImageItem(string filename)
 		{
@@ -119,9 +120,21 @@ namespace SmallImageViewer
 			Image = LoadImage(filename);
 		}
 
-		private static BitmapImage LoadImage(string filename)
+		private static BitmapSource LoadImage(string filename)
 		{
 			using var stream = new FileStream(filename, FileMode.Open);
+			if (Path.GetExtension(filename) == ".ppm")
+			{
+				return LoadPpmImage(stream);
+			}
+			else
+			{
+				return LoadStandardImage(stream);
+			}
+		}
+
+		private static BitmapSource LoadStandardImage(Stream stream)
+		{
 			var image = new BitmapImage();
 			image.BeginInit();
 			image.StreamSource = stream;
@@ -129,6 +142,41 @@ namespace SmallImageViewer
 			image.EndInit();
 			image.Freeze();
 			return image;
+		}
+
+		private static BitmapSource LoadPpmImage(Stream inputStream)
+		{
+			long originalPosition = inputStream.Position;
+			byte[] buffer = new byte[inputStream.Length];
+			inputStream.Read(buffer, 0, (int)inputStream.Length);
+			inputStream.Position = originalPosition;
+
+			using StreamReader reader = new StreamReader(inputStream, System.Text.Encoding.ASCII);
+			if (!(reader.ReadLine() is string magic) ||
+				magic != "P5")
+			{
+				throw new InvalidDataException("Expected PPM Header Magic 'P5'");
+			}
+
+			if (!(reader.ReadLine() is string size) ||
+				!(size.Split(" ") is string[] dimensions) ||
+				!int.TryParse(dimensions[0], out int width) ||
+				!int.TryParse(dimensions[1], out int height))
+			{
+				throw new InvalidDataException("Expected size of PPM image as 'width height'");
+			}
+
+			if (!(reader.ReadLine() is string maxValString) ||
+				!int.TryParse(maxValString, out int maxVal) ||
+				maxVal != 255)
+			{
+				throw new InvalidDataException("Expected max value of 255");
+			}
+
+			byte[] bytes = new byte[width * height];
+			Array.Copy(buffer, buffer.Length - bytes.Length, bytes, 0, bytes.Length);
+
+			return BitmapSource.Create(width, height, 96f, 96f, PixelFormats.Gray8, null, bytes, width * sizeof(byte));
 		}
 	}
 
@@ -159,6 +207,7 @@ namespace SmallImageViewer
 		private FileSystemWatcher? _watcher;
 		private RapidWaiter _reloadWaiter;
 		private bool _isDesignMode = false;
+		private static readonly ISet<string> _ImageExtensions = new HashSet<string> { ".png", ".ppm", ".bmp" };
 
 		private void WatchFolder()
 		{
@@ -210,7 +259,7 @@ namespace SmallImageViewer
 		private void LoadImageItems()
 		{
 			ImageItems.Clear();
-			GetAllPngFiles(FolderPath)
+			GetAllImageFiles(FolderPath)
 				.ForEach(p => ImageItems.Add(new ImageItem(p)));
 		}
 
@@ -247,7 +296,7 @@ namespace SmallImageViewer
 			}
 		};
 
-		private IEnumerable<string> GetAllPngFiles(string? folderPath)
+		private IEnumerable<string> GetAllImageFiles(string? folderPath)
 		{
 			if (string.IsNullOrEmpty(folderPath))
 			{
@@ -256,7 +305,7 @@ namespace SmallImageViewer
 
 			var filePaths = Directory.GetFiles(folderPath);
 			return filePaths
-				.Where(p => Path.GetExtension(p) == ".png")
+				.Where(p => _ImageExtensions.Contains(Path.GetExtension(p)))
 				.OrderBy(p => Path.GetFileName(p));
 		}
 
@@ -264,7 +313,7 @@ namespace SmallImageViewer
 		{
 			ExecuteAction = _ =>
 			{
-				GetAllPngFiles(FolderPath)
+				GetAllImageFiles(FolderPath)
 					.ForEach(p => File.Delete(p));
 			}
 		};
@@ -347,4 +396,6 @@ namespace SmallImageViewer
 			_timer.Start();
 		}
 	}
+
+
 }
