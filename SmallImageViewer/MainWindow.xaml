@@ -26,10 +26,12 @@
 								<RowDefinition Height="auto"/>
 							</Grid.RowDefinitions>
 							<Border BorderBrush="Black" BorderThickness="1">
-								<Image x:Name="ImageTile"
-									Width="{Binding DataContext.AppViewModel.ImageSize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListView}}" 
-									Height="{Binding DataContext.AppViewModel.ImageSize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListView}}" 
-									RenderOptions.BitmapScalingMode="NearestNeighbor" Source="{Binding Image}"/>
+								<local:ZoomBorder ClipToBounds="True">
+									<Image x:Name="ImageTile"
+										Width="{Binding DataContext.AppViewModel.ImageSize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListView}}" 
+										Height="{Binding DataContext.AppViewModel.ImageSize, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListView}}" 
+										RenderOptions.BitmapScalingMode="NearestNeighbor" Source="{Binding Image}"/>
+								</local:ZoomBorder>
 							</Border>
 							<TextBlock Text="{Binding Name}" Grid.Row="1" HorizontalAlignment="Center"
 									   MaxWidth="{Binding Width, ElementName=ImageTile}"/>
