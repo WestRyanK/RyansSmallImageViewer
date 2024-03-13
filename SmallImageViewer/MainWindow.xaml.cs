@@ -373,8 +373,10 @@ namespace SmallImageViewer
 	{
 		public Action RapidAction { get; set; }
 		public TimeSpan Delay { get; set; }
+		public int RetryCount { get; set; } = 10;
 
 		private DispatcherTimer _timer;
+		private int _retries = 0;
 
 		public RapidWaiter()
 		{
@@ -385,8 +387,24 @@ namespace SmallImageViewer
 
 		private void _timer_Tick(object? sender, EventArgs e)
 		{
-			_timer.IsEnabled = false;
-			RapidAction?.Invoke();
+			try
+			{
+				_timer.IsEnabled = false;
+				RapidAction?.Invoke();
+				_retries = 0;
+			}
+			catch (Exception ex)
+			{
+				if (_retries < RetryCount)
+				{
+					_retries++;
+					Fire();
+				}
+				else
+				{
+					_retries = 0;
+				}
+			}
 		}
 
 		public void Fire()
